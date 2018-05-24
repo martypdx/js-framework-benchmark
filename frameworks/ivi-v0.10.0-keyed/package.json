@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "name": "js-framework-benchmark-ivi",
+  "version": "1.0.0",
+  "description": "Benchmark for ivi",
+  "author": "Stefan Krause",
+  "license": "Apache-2",
+  "homepage": "https://github.com/krausest/js-framework-benchmark",
+  "repository": "https://github.com/krausest/js-framework-benchmark",
+  "keywords": [],
+  "scripts": {
+    "build-dev": "gulp build",
+    "build-prod": "gulp build"
+  },
+  "dependencies": {
+    "ivi-core": "0.10.0",
+    "ivi-scheduler": "0.10.0",
+    "ivi-html": "0.10.0",
+    "ivi-events": "0.10.0",
+    "ivi-state": "0.10.0",
+    "ivi": "0.10.0"
+  },
+  "devDependencies": {
+    "del": "3.0.0",
+    "google-closure-compiler": "20180402.0.0",
+    "gulp": "3.9.1",
+    "rollup": "0.58.2",
+    "rollup-plugin-node-resolve-main-fields": "3.3.0"
+  }
+}

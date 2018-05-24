@@ -70,7 +70,7 @@ export class TableResultValueEntry implements TableResultEntry {
         let col = this.statisticalCol === undefined ? this.color : this.statisticalCol[0];
         let textCol = this.statisticalCol === undefined ? '#000' : this.statisticalCol[1];
         return (<td key={this.key} style={{backgroundColor:col, color: textCol}}>
-                    <span className="mean">{this.mean.toFixed(1)}</span>
+                    <span className="mean">{this.mean.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: true})}</span>
                     <span className="deviation">{this.standardDeviation.toFixed(1)}</span>
                     <br />
                     <span className="factor">({this.factor.toFixed(1)})</span>
@@ -129,12 +129,14 @@ let statisticComputeColor = function(sign: number, pValue: number): [string, str
 export class ResultTableData {
     // Rows
     benchmarksCPU: Array<Benchmark>;
+    benchmarksStartup: Array<Benchmark>;
     benchmarksMEM: Array<Benchmark>;
     // Columns
     frameworks: Array<Framework>;
     // Cell data
     resultsCPU: Array<Array<TableResultValueEntry|null>>;   // [benchmark][framework]
     geomMeanCPU: Array<TableResultGeommeanEntry|null>;
+    resultsStartup: Array<Array<TableResultValueEntry|null>>;
     resultsMEM: Array<Array<TableResultValueEntry|null>>;
 
     constructor(public allFrameworks: Array<Framework>, public allBenchmarks: Array<Benchmark>, public results: ResultLookup, 
@@ -145,37 +147,30 @@ export class ResultTableData {
         this.update(sortKey);
     }
     private update(sortKey: string) {
-        this.benchmarksCPU = this.allBenchmarks.filter(benchmark => benchmark.type !== BenchmarkType.MEM && this.selectedBenchmarks.has(benchmark));
+        this.benchmarksCPU = this.allBenchmarks.filter(benchmark => benchmark.type === BenchmarkType.CPU && this.selectedBenchmarks.has(benchmark));
+        this.benchmarksStartup = this.allBenchmarks.filter(benchmark => benchmark.type === BenchmarkType.STARTUP && this.selectedBenchmarks.has(benchmark));
         this.benchmarksMEM = this.allBenchmarks.filter(benchmark => benchmark.type === BenchmarkType.MEM && this.selectedBenchmarks.has(benchmark));
 
+        const prepare = (benchmark: Benchmark) => {
+            this.frameworks.forEach(f => {
+                let result = this.results(benchmark, f);
+                if (result !== null) {
+                    let vals = result.values.slice(0);
+                    result.mean = jStat.mean(vals);
+                    result.median = jStat.median(vals);
+                    result.standardDeviation = jStat.stdev(vals);
+                    result.count = vals.length;
+                }
+            });
+        }
 
-        this.benchmarksCPU.forEach(benchmark => {
-            this.frameworks.forEach(f => {
-                let result = this.results(benchmark, f);
-                if (result !== null) {
-                    let vals = result.values.slice(0);
-                    result.mean = jStat.mean(vals);
-                    result.median = jStat.median(vals);
-                    result.standardDeviation = jStat.stdev(vals);
-                    result.count = vals.length;
-                }
-            });
-        });
-        this.benchmarksMEM.forEach(benchmark => {
-            this.frameworks.forEach(f => {
-                let result = this.results(benchmark, f);
-                if (result !== null) {
-                    let vals = result.values.slice(0);
-                    result.mean = jStat.mean(vals);
-                    result.median = jStat.median(vals);
-                    result.standardDeviation = jStat.stdev(vals);
-                    result.count = vals.length;
-                }
-            });
-        })
+        this.benchmarksCPU.forEach(prepare);
+        this.benchmarksStartup.forEach(prepare);
+        this.benchmarksMEM.forEach(prepare);
 
 
         this.resultsCPU = this.benchmarksCPU.map(benchmark => this.computeFactors(benchmark, true));
+        this.resultsStartup = this.benchmarksStartup.map(benchmark => this.computeFactors(benchmark, true));
         this.resultsMEM = this.benchmarksMEM.map(benchmark => this.computeFactors(benchmark, false));
 
         this.geomMeanCPU = this.frameworks.map((framework, idx) => { 
@@ -191,8 +186,11 @@ export class ResultTableData {
             else if (sortKey === SORT_BY_GEOMMEAN) sortValue = this.geomMeanCPU[frameworkIndex]!.mean;
             else {
                 let cpuIdx = this.benchmarksCPU.findIndex(b => b.id === sortKey);
+                let startupIdx = this.benchmarksStartup.findIndex(b => b.id === sortKey);
+                console.log("startupIdx", startupIdx);
                 let memIdx = this.benchmarksMEM.findIndex(b => b.id === sortKey);
                 if (cpuIdx>-1) sortValue = this.resultsCPU[cpuIdx][frameworkIndex]==null ? Number.POSITIVE_INFINITY : this.resultsCPU[cpuIdx][frameworkIndex]!.mean;
+                else if (startupIdx>-1) sortValue = this.resultsStartup[startupIdx][frameworkIndex]==null ? Number.POSITIVE_INFINITY : this.resultsStartup[startupIdx][frameworkIndex]!.mean;    
                 else if (memIdx>-1) sortValue = this.resultsMEM[memIdx][frameworkIndex]==null ? Number.POSITIVE_INFINITY : this.resultsMEM[memIdx][frameworkIndex]!.mean;    
                 else throw `sortKey ${sortKey} not found`;
             }
@@ -207,6 +205,7 @@ export class ResultTableData {
         this.frameworks = this.remap(remappedIdx, this.frameworks);
         this.resultsCPU = this.resultsCPU.map(row => this.remap(remappedIdx, row));
         this.geomMeanCPU = this.remap(remappedIdx, this.geomMeanCPU);
+        this.resultsStartup = this.resultsStartup.map(row => this.remap(remappedIdx, row));
         this.resultsMEM = this.resultsMEM.map(row => this.remap(remappedIdx, row));
     }
     remap<T>(remappedIdx: Array<number>, array: Array<T>): Array<T> {

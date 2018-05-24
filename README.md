@@ -12,7 +12,7 @@ The following operations are benchmarked for each framework:
 
 * create rows: Duration for creating 1000 rows after the page loaded.
 * replace all rows: Duration for updating all 1000 rows of the table (with 5 warmup iterations).
-* partial update: Time to update the text of every 10th row (with 5 warmup iterations).
+* partial update: Time to update the text of every 10th row for a table with 10000 rows (with 5 warmup iterations).
 * select row: Duration to highlight a row in response to a click on the row. (with 5 warmup iterations).
 * swap rows: Time to swap 2 rows on a 1K table. (with 5 warmup iterations).
 * remove row: Duration to remove a row. (with 5 warmup iterations).
@@ -25,7 +25,7 @@ The following operations are benchmarked for each framework:
 * startup time: Duration for loading and parsing the javascript code and rendering the page.
 
 For all benchmarks the duration is measured including rendering time. You can read some details on this [article](http://www.stefankrause.net/wp/?p=218).
-The results of this benchmark is outlined on my blog ([round 1](http://www.stefankrause.net/wp/?p=191), [round 2](http://www.stefankrause.net/wp/?p=283), [round 3](http://www.stefankrause.net/wp/?p=301), [round 4](http://www.stefankrause.net/wp/?p=316) [round 5](http://www.stefankrause.net/wp/?p=392) and [round 6](http://www.stefankrause.net/wp/?p=431)).
+The results of this benchmark is outlined on my blog ([round 1](http://www.stefankrause.net/wp/?p=191), [round 2](http://www.stefankrause.net/wp/?p=283), [round 3](http://www.stefankrause.net/wp/?p=301), [round 4](http://www.stefankrause.net/wp/?p=316), [round 5](http://www.stefankrause.net/wp/?p=392), [round 6](http://www.stefankrause.net/wp/?p=431) and [round 7](http://www.stefankrause.net/wp/?p=454)).
 
 ## Snapshot of the results
 
@@ -39,7 +39,7 @@ There are currently ~60 framework entries in this repository. Installing (and ma
 
 ### 1. Prerequisites
 
-Have *node.js (>=7.0)* installed. If you want to do yourself a favour use nvm for that and install yarn. The benchmark has been tested with node 7.0.
+Have *node.js (>=7.6)* installed. If you want to do yourself a favour use nvm for that and install yarn. The benchmark has been tested with node 8.4.0.
 For some frameworks you'll also need *java* (>=8, e.g. openjdk-8-jre on ubuntu).
 Please make sure that the following command work before trying to build:
 ```
@@ -78,7 +78,7 @@ Now open a new terminal window and keep http-server running in background.
 
 We now try to build the first framework. Go to the vanillajs reference implementation
 ```
-cd vanillajs-keyed
+cd frameworks/vanillajs-keyed
 ```
 and install the dependencies
 ```
@@ -89,9 +89,9 @@ and build the framework
 npm run build-prod
 ```
 There should be no build errors and we can open the framework in the browser:
-[http://localhost:8080/vanillajs-keyed/](http://localhost:8080/vanillajs-keyed/)
+[http://localhost:8080/frameworks/vanillajs-keyed/](http://localhost:8080/frameworks/vanillajs-keyed/)
 
-Some frameworks like aurelia, binding.scala or ember can't be opened that way, because they need a 'dist' or 'target/web/stage' or something in the URL. You can find out the correct URL in the [index.html](http://localhost:8080/index.html) you've opened before or take a look whether there's a third parameter in [common.ts](https://github.com/krausest/js-framework-benchmark/blob/master/webdriver-ts/src/common.ts#L38-L42) that represents the url.
+Some frameworks like binding.scala or ember can't be opened that way, because they need a 'dist' or 'target/web/stage' or something in the URL. You can find out the correct URL in the [index.html](http://localhost:8080/index.html) you've opened before or take a look whether there's a third parameter in [common.ts](https://github.com/krausest/js-framework-benchmark/blob/master/webdriver-ts/src/common.ts#L38-L42) that represents the url.
 
 Open the browser console and click a bit on the buttons and you should see some measurements printed on the console.
 ![First Run](images/firstRun.png?raw=true "First run")
@@ -102,7 +102,7 @@ Open the browser console and click a bit on the buttons and you should see some 
 
 For contributions it is basically sufficient to create a new directory for your framework that supports `npm install` and `npm run build-prod` and can be then opened in the browser. All other steps are optional. Let's simulate that by copying vanillajs.
 ```
-cd ..
+cd ../frameworks
 cp -r vanillajs-keyed super-vanillajs-keyed
 cd super-vanillajs-keyed
 ```
@@ -112,7 +112,7 @@ Then we edit super-vanillajs-keyed/index.html to have a correct index.html:
 ...
                     <h1>Super-VanillaJS-"keyed"</h1>
 ```
-In most cases you'll need `npm install` and `npm run build-prod` and then check whether it works in the browser on [http://localhost:8080/super-vanillajs-keyed/](http://localhost:8080/super-vanillajs-keyed/).
+In most cases you'll need `npm install` and `npm run build-prod` and then check whether it works in the browser on [http://localhost:8080/frameworks/super-vanillajs-keyed/](http://localhost:8080/frameworks/super-vanillajs-keyed/).
 
 (Of course in reality you'd rather throw out the javascript source files and use your framework there instead of only changing the html file.)
 
@@ -121,7 +121,7 @@ In most cases you'll need `npm install` and `npm run build-prod` and then check 
 As mentioned above the benchmark uses an automated benchmark driver using chromedriver to measure the duration for each operation using chrome's timeline. Here are the steps to run is for a single framework:
 
 ```
-cd ..
+cd ../..
 cd webdriver-ts
 ```
 and install the dependencies
@@ -235,11 +235,12 @@ After that you can check all results in [http://localhost:8080/webdriver-ts/tabl
 runs the test for all frameworks that contain either angular or bob, which means all angular versions and bobril and all benchmarks whose id contain 01_ or 02_
 * If you can't get one framework to compile or run, just move it out of the root directory and remove it from common.ts, recompile and re-run
 * To achieve good precision you should run each framework often enough. I recommend at least 10 times, more is better. The result table contains the mean and the standard deviation. You can seen the effect on the latter pretty well if you increase the count.
+* One can check whether an implementation is keyed or non-keyed via `npm run nonKeyed` in the webdriver-ts directory. You can limit which frameworks to check in the same way as the webdriver test runner like e.g. `npm run nonKeyed -- --framework svelte`. The program will report an error if a benchmark implementation is incorrectly classified.
 
 ## How to contribute
 
 Contributions are very welcome. Please use the following rules:
-* Name your directory [FrameworkName]-v[Version]-[keyed|non-keyed]
+* Name your directory frameworks/[FrameworkName]-v[Version]-[keyed|non-keyed]
 * Each contribution must be buildable by `npm install` and `npm run build-prod` command in the directory. What build-prod does is up to you. Often there's an `npm run build-dev` that creates a development build
 * Every implementation must use bootstrap provided in the root css directory. 
 * All npm dependencies should be installed locally (i.e. listed in your package.json). Http-server should not be a local dependency. It is installed from the root directory to allow access to bootstrap.
@@ -248,7 +249,7 @@ Contributions are very welcome. Please use the following rules:
 * Don't change the ids in the index.html, since the automated benchmarking relies on those ids.
 * You don't need to update /index.html. It's created with a script (see 6.2 above).
 * You don't need to edit webdriver-ts/common.ts. If you have a conflict in common.ts you don't need to resolve it. More often than not I'm just merging the pull request in the moment you're fixing the conflict.
-* Currently we're experimenting with a travis-ci integration build. Currently pull requests seem to fail quite often. Please ignore that for now.
+* Please don't commit any of the result file webdriver-ts/table.html, webdriver-ts-results/src/results.ts or webdriver-ts-results/table.html. I use to run the benchmarks after merging and publish updated (temporary) results.
 
 This work is derived from a benchmark that Richard Ayotte published on https://gist.github.com/RichAyotte/a7b8780341d5e75beca7 and adds more framework and more operations. Thanks for the great work.
 
