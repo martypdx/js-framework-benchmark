@@ -19,7 +19,9 @@
         "./src/createResultJS.ts",
         "./src/createIndex.ts",
         "./src/runCheck.ts",
-        "./src/nonKeyed.ts"
+        "./src/updateFrameworks.ts",
+        "./src/isKeyed.ts",
+        "./src/rebuild.ts",
     ],
     "exclude": [
         "node_modules"

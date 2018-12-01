@@ -50,7 +50,7 @@ env:
   - JS_FRAMEWORK=riot-v3.5.0-non-keyed
   - JS_FRAMEWORK=rx-domh-v0.0.2-rxjs-v5.3.0-keyed
   - JS_FRAMEWORK=simulacra-v2.1.1-non-keyed
-  - JS_FRAMEWORK=slim-js-v3.0.2-non-keyed
+  - JS_FRAMEWORK=slim-js-v3.3.0-non-keyed
   - JS_FRAMEWORK=stem-v0.2.70-non-keyed
   - JS_FRAMEWORK=surplus-v0.4.0-keyed
   - JS_FRAMEWORK=surplus-v0.4.0-non-keyed
@@ -92,4 +92,4 @@ script:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then  (npm run selenium -- --framework $JS_FRAMEWORK --count 1 --benchmark 01_ 02_ 03_ 04_ 05_ 06_) fi
   
 git:
-  depth: 700
+  depth: 5

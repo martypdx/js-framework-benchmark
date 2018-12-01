@@ -1,27 +1,32 @@
 import * as React from 'react';
 
-const toggle = (event: React.SyntheticEvent<HTMLElement>) => {
-  let elem = (event.nativeEvent.target as HTMLElement).parentElement;
-  if (elem) elem.classList.toggle('open');
-}
-
 interface Props {
   label: string;
   children: JSX.Element | JSX.Element[];
   width: string;
 }
 
-export function DropDown(props: Props) {
-      let {label, children, width} = props;
-      return <div className="btn-group">
-        <button type="button" onClick={toggle} className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {label} <span className="caret"></span>
-        </button>
-        <div className="dropdown-backdrop" onClick={toggle}></div>
-        <div className="dropdown-menu" style={{width: width}}>  
-          <div className="panel-body" style={{paddingTop:'0px'}}>
+export class DropDown extends React.Component<Props,{open: boolean}> {
+    constructor(props: Props) {
+        super(props);
+        this.state = {open: false};
+    }
+    public toggle = (event: React.SyntheticEvent<HTMLElement>) => {
+        event.stopPropagation();
+        this.setState((state,props) => {
+            return {open: !state.open}
+        })
+      }
+    public render() {
+        let {label, children, width} = this.props;
+        return (<div className={(this.state.open ? 'open dropdown-container' : 'dropdown-container')}>
+          <button type="button" onClick={this.toggle} className={(this.state.open ? 'open dropdown' : 'dropdown')}>
+            {label} <span className="caret"></span>
+          </button>
+          <div className="shutter" onClick={this.toggle}></div>
+          <div className={(this.state.open ? 'show ' : '') +'dropdown-menu'} style={{width: width}}>
             {children}
           </div>
-        </div>
-      </div>
+        </div>);
+    }
 };
