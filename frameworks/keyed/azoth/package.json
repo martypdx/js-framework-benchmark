@@ -1,0 +1,33 @@
+{
+  "name": "js-framework-benchmark-azoth",
+  "version": "1.0.0",
+  "description": "Boilerplate Benchmark for Azoth",
+  "scripts": {
+    "start": "rollup -c -w",
+    "build-prod": "rollup -c --environment production"
+  },
+  "keywords": [
+    "azoth"
+  ],
+  "js-framework-benchmark": {
+    "frameworkVersionFromPackage": "azoth",
+    "customURL": "/dist"
+  },
+  "author": "Marty Nelson @martypdx",
+  "license": "MIT",
+  "homepage": "https://github.com/martypdx/js-framework-benchmark",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krausest/js-framework-benchmark.git"
+  },
+  "devDependencies": {
+    "rollup": "^0.67.3",
+    "rollup-plugin-azoth": "^0.4.1",
+    "rollup-plugin-cleanup": "^3.0.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0"
+  },
+  "dependencies": {
+    "azoth": "^0.1.0"
+  }
+}
