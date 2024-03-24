@@ -7,15 +7,19 @@ export default defineConfig({
     esbuild: {
         jsx: 'preserve',
     },
+    root: './src',
     build: {
         target: 'esnext',
         minify: false,
-        outDir: './',
-        assetsDir: './assets/',
+        outDir: '../',
+        assetsDir: './',
         modulePreload: false,
         rollupOptions: {
             output: [{
-                format: 'es'
+                format: 'es',
+                entryFileNames: `[name].js`,
+                chunkFileNames: `[name].js`,
+                assetFileNames: `[name].[ext]`
             }]
         },
     },
