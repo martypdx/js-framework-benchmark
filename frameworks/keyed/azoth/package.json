@@ -1,0 +1,24 @@
+{
+    "name": "azoth",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "vite",
+        "dev": "vite",
+        "build": "vite build",
+        "build-prod": "npm run build"
+    },
+    "js-framework-benchmark": {
+        "frameworkVersionFromPackage": "azoth",
+        "frameworkHomeURL": "https://github.com/azothjs/azoth",
+        "customURL": "/dist"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "azoth": "^1.3.10"
+    }
+}
