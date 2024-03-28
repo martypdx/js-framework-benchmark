@@ -54,9 +54,7 @@ function App() {
             const { children } = listBlock.container;
             for(let i = 0; i < children.length; i += 10) {
                 const row = children[i];
-                // const { azKey: id, label } = row.dataset;
-                const { id, dataset } = row;
-                const { label } = dataset;
+                const { azKey: id, label } = row.dataset;
                 // dispatch update
                 listBlock.updateById(id, { id, label: label + ' !!!' });
             }
